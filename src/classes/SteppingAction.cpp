@@ -8,6 +8,7 @@
 #include "G4LogicalVolume.hh"
 
 #include "G4Gamma.hh"
+#include "G4Electron.hh"
 
 namespace SoEiXRS {
 
@@ -19,6 +20,9 @@ SteppingAction::~SteppingAction() {
 }
 
 void SteppingAction::UserSteppingAction(const G4Step* step) {
+
+	/*std::cout << step->GetTrack()->GetDefinition() << std::endl;
+	std::cout << "e-: " << G4Electron::ElectronDefinition() << std::endl;*/
 
 	if (step->GetTrack()->GetDefinition() != G4Gamma::GammaDefinition()) {
 		return; // we are only interested in gamma

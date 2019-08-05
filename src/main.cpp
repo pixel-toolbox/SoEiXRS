@@ -1,6 +1,4 @@
 #include "G4RunManager.hh"
-#include "G4UImanager.hh"
-#include "G4VisExecutive.hh"
 
 #include <iostream>
 
@@ -19,15 +17,10 @@ int main(int argc, char* argv[]) {
 	if (argc != 7) {
 		std::cout << "Expects 6 arguments: " << std::endl;
 		std::cout << "  beam energy (in keV)" << std::endl;
-		std::cout
-				<< "  beam energy fluctuations (in keV), gaussian distribution"
-				<< std::endl;
+		std::cout << "  beam energy fluctuations (in keV), gaussian distribution" << std::endl;
 		std::cout << "  target thickness (in mm)" << std::endl;
-		std::cout << "  target angle (in degrees, 0 means perpendicular)"
-				<< std::endl;
-		std::cout
-				<< "  detector position (\"transmission\" or \"perpendicular\")"
-				<< std::endl;
+		std::cout << "  target angle (in degrees, 0 means perpendicular)" << std::endl;
+		std::cout << "  detector position (\"transmission\" or \"perpendicular\")" << std::endl;
 		std::cout << "  detector opening angle (in degrees)" << std::endl;
 		return 0;
 	}
@@ -50,16 +43,14 @@ int main(int argc, char* argv[]) {
 
 	std::cout << "#initial data:" << std::endl;
 	std::cout << "# beam energy: " << beamEnergy << "keV" << std::endl;
-	std::cout << "# beam energy width: " << beamEnergyFluc << "keV"
-			<< std::endl;
+	std::cout << "# beam energy width: " << beamEnergyFluc << "keV" << std::endl;
 	std::cout << "# target thickness: " << targetThickness << "mm" << std::endl;
 	std::cout << "# target angle: " << targetAngle << "°" << std::endl;
 	std::cout << "# detector position: " << s1 << std::endl;
-	std::cout << "# detector opening angle: " << detectorOpeningAngle << "°"
-			<< std::endl;
+	std::cout << "# detector opening angle: " << detectorOpeningAngle << "°" << std::endl;
 
 	// construct the default run manager
-	G4RunManager* runManager = new G4RunManager;
+	G4RunManager* runManager = new G4RunManager();
 
 	// set mandatory initialization classes
 	G4VModularPhysicsList* physicsList = new FTFP_BERT;
@@ -72,27 +63,17 @@ int main(int argc, char* argv[]) {
 	// initialize G4 kernel
 	runManager->Initialize();
 
-	// get the pointer to the UI manager and set verbosities
-	G4UImanager* UI = G4UImanager::GetUIpointer();
-	UI->ApplyCommand("/run/verbose 0");
-	UI->ApplyCommand("/event/verbose 0");
-	UI->ApplyCommand("/tracking/verbose 0");
-
-	G4VisManager* visManager = new G4VisExecutive;
-	visManager->Initialise();
-
-	UI->ApplyCommand("/control/execute vis.mac");
+	UIThread uithread();
 
 	// start a run
-	int numberOfEvent = 3;
-	//runManager->BeamOn(numberOfEvent);
+	int numberOfEvent = 1;//10000000;
+	runManager->BeamOn(numberOfEvent);
 
 	std::string s;
 	std::cin >> s;
 
 	// job termination
 	delete runManager;
-	delete visManager;
 
 	std::cout << "done without gamma" << std::endl;
 

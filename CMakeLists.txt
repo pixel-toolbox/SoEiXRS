@@ -30,22 +30,23 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wstrict-prototypes")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 
 # add C++ compiler flag to enable code coverage testing
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} --coverage")
 
-# set linker options to hide internal symbols
-set(CMAKE_SHARED_LINKER_FLAGS
-    "${CMAKE_SHARED_LINKER_FLAGS} -fvisibility=hidden")
-
-find_package(Geant4 REQUIRED)
+find_package(Geant4 REQUIRED vis_all ui_all)
 include_directories(${Geant4_INCLUDE_DIRS})
 add_definitions(${Geant4_DEFINITIONS})
 #set(CMAKE_CXX_FLAGS ${Geant4_CXX_FLAGS})
 
 set(HEADERS
-    # currently no headers
+    ${PROJECT_SOURCE_DIR}/src/include.hh
+    ${PROJECT_SOURCE_DIR}/src/classes/ActionInitialization.hpp
+    ${PROJECT_SOURCE_DIR}/src/classes/PrimaryGeneratorAction.hpp
+    ${PROJECT_SOURCE_DIR}/src/classes/SteppingAction.hpp
+    ${PROJECT_SOURCE_DIR}/src/classes/DetectorConstruction.hpp
+    ${PROJECT_SOURCE_DIR}/src/classes/UIThread.hpp
 )
 
 # add source files of this module
@@ -55,6 +56,7 @@ set(SOURCES
     ${PROJECT_SOURCE_DIR}/src/classes/ActionInitialization.cpp
     ${PROJECT_SOURCE_DIR}/src/classes/PrimaryGeneratorAction.cpp
     ${PROJECT_SOURCE_DIR}/src/classes/SteppingAction.cpp
+    ${PROJECT_SOURCE_DIR}/src/classes/UIThread.cpp
 )
 
 # add object files to be compiled
