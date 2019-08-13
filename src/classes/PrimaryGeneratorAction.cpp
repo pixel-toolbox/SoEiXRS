@@ -9,6 +9,8 @@
 #include "G4ParticleDefinition.hh"
 #include "G4Electron.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4Geantino.hh"
+#include "G4Gamma.hh"
 #include "Randomize.hh"
 
 namespace SoEiXRS {
@@ -16,10 +18,10 @@ namespace SoEiXRS {
 PrimaryGeneratorAction::PrimaryGeneratorAction(double energy, double energyFluc) :
 		G4VUserPrimaryGeneratorAction(), fParticleGun(0), fEnvelopeBox(0), de(
 				time(0)), nd(energy, energyFluc) {
-	G4int n_particle = 1;
+	G4int n_particle = 1000;
 	fParticleGun = new G4ParticleGun(n_particle);
 
-	G4ParticleDefinition* particle = G4Electron::ElectronDefinition();
+	G4ParticleDefinition* particle = G4Electron::ElectronDefinition(); //G4Gamma::GammaDefinition();
 	fParticleGun->SetParticleDefinition(particle);
 	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0., 0., 1.));
 	fParticleGun->SetParticlePosition(G4ThreeVector(0, 0, -10 * cm));

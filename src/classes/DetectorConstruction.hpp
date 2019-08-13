@@ -41,9 +41,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction {
 
 		const G4double atomicNumber = 1.;
 		const G4double massOfMole = 1.008 * g / mole;
-		const G4double density = 1.e-25 * g / cm3;
+		const G4double density = 1.e-25 * g / cm3; // was 1.e-25
 		const G4double temperature = 2.73 * kelvin;
-		const G4double pressure = 3.e-18 * pascal;
+		const G4double pressure = 3.e-10 * 100 * pascal; // was 3.e-18
 
 		// Stuff moved here from DetectorConstruction to eliminate memory leaks
 

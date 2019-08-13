@@ -3,6 +3,9 @@
 
 #include "G4UserSteppingAction.hh"
 #include "globals.hh"
+#include "DetectorPosition.hh"
+
+#include <fstream>
 
 class B1EventAction;
 
@@ -13,13 +16,19 @@ namespace SoEiXRS {
 class SteppingAction : public G4UserSteppingAction {
 
 	public:
-		SteppingAction();
+		SteppingAction(const char* allEnergyOutFile, const char* detectorEnergyOutFile, DetectorPosition detPos, double detectorAngle);
 		virtual ~SteppingAction();
 
 		virtual void UserSteppingAction(const G4Step*);
 
 	private:
 		G4LogicalVolume* targetVolume;
+
+		std::ofstream allEnergyOf;
+		std::ofstream detEnergyOf;
+
+		DetectorPosition detPos;
+		double detectorAngle;
 };
 
 } /* namespace SoEiXRS */

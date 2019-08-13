@@ -10,7 +10,6 @@ DetectorConstruction::DetectorConstruction(double targetThickness,
 				atomicNumber, massOfMole, density, kStateGas, temperature,
 				pressure) {
 
-
 	G4Box* solidWorld = new G4Box("WorldBox", 0.5 * world_sizeXY,
 			0.5 * world_sizeXY, 0.5 * world_sizeZ);
 	G4LogicalVolume* logicWorld = new G4LogicalVolume(solidWorld, &vacuum,
@@ -25,12 +24,11 @@ DetectorConstruction::DetectorConstruction(double targetThickness,
 	G4LogicalVolume* target_vol = new G4LogicalVolume(target_box, target_mat,
 			"TargetVolume");
 
-	G4ThreeVector rotationAxis(0, 1, 0);
-	G4RotationMatrix target_rot(rotationAxis,
-				targetAngle);
-	G4VPhysicalVolume* target_physvol = new G4PVPlacement(&target_rot,
-			G4ThreeVector(), target_vol, "TargetPhysVolume", logicWorld, false,
-			0, true);
+	CLHEP::HepRotationY target_rot_hep(targetAngle*(3.14159265/180));
+	G4RotationMatrix* target_rot = new G4RotationMatrix(target_rot_hep);
+	G4VPhysicalVolume* target_physvol = new G4PVPlacement(target_rot,
+	 G4ThreeVector(0, 0, 0), target_vol, "TargetPhysVolume", logicWorld, false,
+	 0, true);
 
 	targetVolume = target_vol;
 }

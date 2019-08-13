@@ -1,10 +1,3 @@
-/*
- * UIThread.cpp
- *
- *  Created on: 05.08.2019
- *      Author: simon
- */
-
 #include "UIThread.hpp"
 #include "G4VisExecutive.hh"
 #include "G4UImanager.hh"

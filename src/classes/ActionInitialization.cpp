@@ -1,10 +1,3 @@
-/*
- * ActionInitialization.cpp
- *
- *  Created on: 08.07.2019
- *      Author: simon
- */
-
 #include "ActionInitialization.hpp"
 
 #include "PrimaryGeneratorAction.hpp"
@@ -12,17 +5,23 @@
 
 namespace SoEiXRS {
 
-ActionInitialization::ActionInitialization(double energy, double energyFluc) :
-		energy(energy),
-		energyFluc(energyFluc),
-		G4VUserActionInitialization() {}
+ActionInitialization::ActionInitialization(double energy, double energyFluc,
+		const char* allEnergyOutFile, const char* detectorEnergyOutFile,
+		DetectorPosition detPos, double detectorAngle) :
+		energy(energy), energyFluc(energyFluc), G4VUserActionInitialization(), allEnergyOutFile(
+				allEnergyOutFile), detectorEnergyOutFile(detectorEnergyOutFile), detPos(
+				detPos), detectorAngle(detectorAngle) {
+}
 
 void ActionInitialization::Build() const {
 	SetUserAction(new PrimaryGeneratorAction(energy, energyFluc));
 
-	SetUserAction(new SteppingAction());
+	SetUserAction(
+			new SteppingAction(allEnergyOutFile, detectorEnergyOutFile, detPos,
+					detectorAngle));
 }
 
-ActionInitialization::~ActionInitialization() {}
+ActionInitialization::~ActionInitialization() {
+}
 
 } /* namespace SoEiXRS */

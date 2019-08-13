@@ -1,6 +1,7 @@
 #include "SteppingAction.hpp"
 
 #include "DetectorConstruction.hpp"
+#include "DetectorPosition.hh"
 
 #include "G4Step.hh"
 #include "G4Event.hh"
@@ -10,26 +11,26 @@
 #include "G4Gamma.hh"
 #include "G4Electron.hh"
 
+#define USE_MAX true
+
 namespace SoEiXRS {
 
-SteppingAction::SteppingAction() :
-		G4UserSteppingAction(), targetVolume(0) {
+SteppingAction::SteppingAction(const char* allEnergyOutFile,
+		const char* detectorEnergyOutFile, DetectorPosition detPos, double detectorAngle) :
+		G4UserSteppingAction(), targetVolume(0), allEnergyOf(allEnergyOutFile), detEnergyOf(
+				detectorEnergyOutFile), detPos(detPos), detectorAngle(detectorAngle) {
 }
 
 SteppingAction::~SteppingAction() {
+	allEnergyOf.close();
+	detEnergyOf.close();
 }
 
 void SteppingAction::UserSteppingAction(const G4Step* step) {
 
-	/*std::cout << step->GetTrack()->GetDefinition() << std::endl;
-	std::cout << "e-: " << G4Electron::ElectronDefinition() << std::endl;*/
-
 	if (step->GetTrack()->GetDefinition() != G4Gamma::GammaDefinition()) {
-		return; // we are only interested in gamma
+		return;
 	}
-
-	std::cout << "got a gamma!" << std::endl;
-	exit(1);
 
 	if (!targetVolume) {
 		const SoEiXRS::DetectorConstruction* detectorConstruction =
@@ -46,7 +47,38 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
 		return; // as soon as we are outside of the target we will destroy and eventually save the particle based on the direction
 	}
 
-	///TODO: get track info and save (if within the opening angle that was specified)
+	auto energy = step->GetTrack()->GetKineticEnergy() / keV;
+
+	// save 4pi Energy:
+	allEnergyOf << energy << std::endl;
+
+	G4ThreeVector direction = step->GetTrack()->GetMomentumDirection();
+
+	auto x = direction.getX();
+	auto y = direction.getY();
+	auto z = direction.getZ();
+
+	// save angle dependent Energy if necessary:
+	if (detPos == transmission) {
+		if (z>0 && detectorAngle >= (2*atan(
+			#if USE_MAX
+				std::max(x, y)
+			#else
+				sqrt(x*x+y*y)
+			#endif
+				/z)*(180/3.14159265)) ) {
+			detEnergyOf << energy << " " << x << " " << y << " " << z << std::endl;
+		}
+	} else if (detPos == perpendicular) {
+		if (x>0 && detectorAngle >= (2*atan(
+				sqrt(z*z+y*y)/x)
+		        *(180/3.14159265)) ) {
+			detEnergyOf << energy << " " << x << " " << y << " " << z << std::endl;
+		}
+	} else {
+		//WTF
+		throw "wtf";
+	}
 
 	G4Track *aTrack = step->GetTrack();
 	aTrack->SetTrackStatus(fStopAndKill);

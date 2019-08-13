@@ -2,20 +2,29 @@
 #define SoEiXRS_CLASSES_ACTIONINITIALIZATION_HPP_ 1
 
 #include "G4VUserActionInitialization.hh"
+#include "DetectorPosition.hh"
 
 namespace SoEiXRS {
 
-class ActionInitialization : public G4VUserActionInitialization {
-	public:
-		ActionInitialization(double energy, double energyFluc);
+class ActionInitialization: public G4VUserActionInitialization {
+public:
+	ActionInitialization(double energy, double energyFluc,
+			const char* allEnergyOutFile, const char* detectorEnergyOutFile,
+			DetectorPosition detPos, double detectorAngle);
 
-		virtual void Build() const;
+	virtual void Build() const;
 
-		virtual ~ActionInitialization();
+	virtual ~ActionInitialization();
 
-	private:
-		double energy;
-		double energyFluc;
+private:
+	double energy;
+	double energyFluc;
+
+	const char* allEnergyOutFile;
+	const char* detectorEnergyOutFile;
+
+	DetectorPosition detPos;
+	double detectorAngle;
 };
 
 } /* namespace SoEiXRS */
