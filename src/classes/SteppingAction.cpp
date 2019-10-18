@@ -71,8 +71,12 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
 		}
 	} else if (detPos == perpendicular) {
 		if (x>0 && detectorAngle >= (2*atan(
-				sqrt(z*z+y*y)/x)
-		        *(180/3.14159265)) ) {
+			#if USE_MAX
+				std::max(x, y)
+			#else
+				sqrt(x*x+y*y)
+			#endif
+				/x)*(180/3.14159265)) ) {
 			detEnergyOf << energy << " " << x << " " << y << " " << z << std::endl;
 		}
 	} else {

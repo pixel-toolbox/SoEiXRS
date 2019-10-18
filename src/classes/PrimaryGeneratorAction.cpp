@@ -13,12 +13,14 @@
 #include "G4Gamma.hh"
 #include "Randomize.hh"
 
+#include "../define.hh"
+
 namespace SoEiXRS {
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(double energy, double energyFluc) :
 		G4VUserPrimaryGeneratorAction(), fParticleGun(0), fEnvelopeBox(0), de(
 				time(0)), nd(energy, energyFluc) {
-	G4int n_particle = 1000;
+	G4int n_particle = PARTICLES_IN_GUN;
 	fParticleGun = new G4ParticleGun(n_particle);
 
 	G4ParticleDefinition* particle = G4Electron::ElectronDefinition(); //G4Gamma::GammaDefinition();

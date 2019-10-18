@@ -6,6 +6,7 @@
 namespace fs = std::experimental::filesystem;
 
 #include "include.hh"
+#include "define.hh"
 
 #include "FTFP_BERT.hh"
 
@@ -18,8 +19,8 @@ using namespace SoEiXRS;
 
 int main(int argc, char* argv[]) {
 
-	if (argc != 8) {
-		std::cout << "Expects 7 arguments: " << std::endl;
+	if (argc != 10) {
+		std::cout << "Expects 9 arguments: " << std::endl;
 		std::cout << "  beam energy (in keV)" << std::endl;
 		std::cout << "  beam energy fluctuations (in keV), gaussian distribution" << std::endl;
 		std::cout << "  target thickness (in mm)" << std::endl;
@@ -27,6 +28,8 @@ int main(int argc, char* argv[]) {
 		std::cout << "  detector position (\"transmission\" or \"perpendicular\")" << std::endl;
 		std::cout << "  detector opening angle (in degrees)" << std::endl;
 		std::cout << "  create data directory [yes/no]" << std::endl;
+		std::cout << "  Geant4 Material, e.g. G4_W, G4_Mo, G4_Au" << std::endl;
+		std::cout << "  Number of events" << std::endl;
 		return 0;
 	}
 
@@ -46,6 +49,8 @@ int main(int argc, char* argv[]) {
 	}
 	double detectorOpeningAngle = std::stod(argv[6]);
 	bool createDataDirectory = (std::string(argv[7]) == "yes");
+	std::string material = std::string(argv[8]);
+	int eventNum = std::stoi(argv[9]);
 
 	std::cout << "#initial data:" << std::endl;
 	std::cout << "# beam energy: " << beamEnergy << "keV" << std::endl;
@@ -54,28 +59,40 @@ int main(int argc, char* argv[]) {
 	std::cout << "# target angle: " << targetAngle << "°" << std::endl;
 	std::cout << "# detector position: " << s1 << std::endl;
 	std::cout << "# detector opening angle: " << detectorOpeningAngle << "°" << std::endl;
+	std::cout << "# create Data directory: " << createDataDirectory << std::endl;
+	std::cout << "# material: " << material << std::endl;
+	std::cout << "# Event Number: " << eventNum << std::endl;
 
 	std::string allEnergyFileName = "allEnergy.dat";
 	std::string detEnergyFileName = "detEnergy.dat";
+	std::string detInfoFileName = "info.dat";
 
 	if (createDataDirectory) {
 		std::ostringstream is;
 
-		is << "sim_v1_" << beamEnergy << "pm" << beamEnergyFluc << "keV_"
+		is << "sim_v2_" << beamEnergy << "pm" << beamEnergyFluc << "keV_"
 				<< targetThickness << "mm_" << targetAngle << "deg_" << s1
-				<< "_" << detectorOpeningAngle << "deg";
+				<< "_" << detectorOpeningAngle << "deg_" << material << "_" << eventNum << "events";
 
 		std::string dirName(is.str());
 
 		if (fs::is_directory(dirName) || fs::exists(dirName)) {
-			fs::remove(dirName);
+			fs::remove_all(dirName);
 		}
 
 		fs::create_directory(dirName); // create src folder
 
 		allEnergyFileName = is.str() + "/" + allEnergyFileName;
 		detEnergyFileName = is.str() + "/" + detEnergyFileName;
+		detInfoFileName = is.str() + "/" + detInfoFileName;
 	}
+
+	std::ofstream detInfoFile(detInfoFileName);
+
+	detInfoFile << "PARTICLES_IN_GUN=" << PARTICLES_IN_GUN << "\n";
+	detInfoFile << "NUMBER_OF_EVENTS=" << eventNum << "\n";
+
+	detInfoFile.close();
 
 	// construct the default run manager
 	G4RunManager* runManager = new G4RunManager();
@@ -85,7 +102,7 @@ int main(int argc, char* argv[]) {
 	runManager->SetUserInitialization(physicsList);
 
 	runManager->SetUserInitialization(
-			new DetectorConstruction(targetThickness, targetAngle));
+			new DetectorConstruction(targetThickness, targetAngle, material));
 	runManager->SetUserInitialization(
 			new ActionInitialization(beamEnergy, beamEnergyFluc,
 					allEnergyFileName.c_str(), detEnergyFileName.c_str(),
@@ -103,19 +120,18 @@ int main(int argc, char* argv[]) {
 	// initialize G4 kernel
 	runManager->Initialize();
 
-	G4VisManager* visManager = new G4VisExecutive;
+	/*G4VisManager* visManager = new G4VisExecutive;
 	visManager->Initialise();
 
 	UI->ApplyCommand("/control/execute vis.mac");
-	UI->ApplyCommand("/vis/scene/endOfEventAction accumulate -1");
+	UI->ApplyCommand("/vis/scene/endOfEventAction accumulate -1");*/
 
 	// start a run
-	int numberOfEvent = 10;
-	runManager->BeamOn(numberOfEvent);
+	runManager->BeamOn(eventNum);
 
-	std::string s;
+	/*std::string s;
 
-	std::cin >> s;
+	std::cin >> s;*/
 	/*while (s != "exit" && s != "e") {
 		//std::cin >> s;
 		//UI->ApplyCommand(s);
@@ -125,7 +141,7 @@ int main(int argc, char* argv[]) {
 
 	// job termination
 	delete runManager;
-	delete visManager;
+	//delete visManager;
 
 	return 0;
 }

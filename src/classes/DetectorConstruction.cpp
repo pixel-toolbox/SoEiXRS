@@ -3,7 +3,7 @@
 namespace SoEiXRS {
 
 DetectorConstruction::DetectorConstruction(double targetThickness,
-		double targetAngle) :
+		double targetAngle, std::string material) :
 		G4VUserDetectorConstruction(), targetVolume(0), targetThickness(
 				targetThickness), targetAngle(targetAngle), nist(
 				G4NistManager::Instance()), vacuum("interGalactic",
@@ -20,7 +20,7 @@ DetectorConstruction::DetectorConstruction(double targetThickness,
 
 	G4Box* target_box = new G4Box("TargetBox", 2 * cm, 2 * cm,
 			targetThickness * mm);
-	G4Material* target_mat = nist->FindOrBuildMaterial("G4_W");
+	G4Material* target_mat = nist->FindOrBuildMaterial(material);
 	G4LogicalVolume* target_vol = new G4LogicalVolume(target_box, target_mat,
 			"TargetVolume");
 

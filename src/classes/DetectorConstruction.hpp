@@ -19,7 +19,7 @@ namespace SoEiXRS {
 class DetectorConstruction : public G4VUserDetectorConstruction {
 
 	public:
-		DetectorConstruction(double targetThickness, double targetAngle);
+		DetectorConstruction(double targetThickness, double targetAngle, std::string material);
 
 		G4VPhysicalVolume* Construct();
 

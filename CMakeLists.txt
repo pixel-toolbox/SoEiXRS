@@ -45,6 +45,7 @@ add_definitions(${Geant4_DEFINITIONS})
 
 set(HEADERS
     ${PROJECT_SOURCE_DIR}/src/include.hh
+    ${PROJECT_SOURCE_DIR}/src/define.hh
     ${PROJECT_SOURCE_DIR}/src/classes/ActionInitialization.hpp
     ${PROJECT_SOURCE_DIR}/src/classes/PrimaryGeneratorAction.hpp
     ${PROJECT_SOURCE_DIR}/src/classes/SteppingAction.hpp
@@ -67,3 +68,22 @@ set(SOURCES
 add_executable(SoEiXRS ${SOURCES})
 target_link_libraries(SoEiXRS ${Geant4_LIBRARIES})
 target_link_libraries(SoEiXRS "stdc++fs")# "c++experimental")
+
+link_directories(/opt/lib/)
+target_link_libraries(SoEiXRS
+    #"AllpixCore"
+    "Core"
+	"G4zlib"
+	"RIO"
+	"MathCore"
+	"GenVector"
+	#"AllpixObjects"
+	"dl"
+	"pthread"
+	"m"
+	"pcre"
+	"z"
+	"Thread"
+	"Imt"
+	"tbb")
+

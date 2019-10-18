@@ -25,6 +25,8 @@ private:
 
 	DetectorPosition detPos;
 	double detectorAngle;
+
+	int eventNum;
 };
 
 } /* namespace SoEiXRS */
