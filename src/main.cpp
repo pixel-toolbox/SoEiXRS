@@ -19,7 +19,7 @@ using namespace SoEiXRS;
 
 int main(int argc, char* argv[]) {
 
-	if (argc != 10) {
+	if (argc != 12) {
 		std::cout << "Expects 9 arguments: " << std::endl;
 		std::cout << "  beam energy (in keV)" << std::endl;
 		std::cout << "  beam energy fluctuations (in keV), gaussian distribution" << std::endl;
@@ -30,6 +30,8 @@ int main(int argc, char* argv[]) {
 		std::cout << "  create data directory [yes/no]" << std::endl;
 		std::cout << "  Geant4 Material, e.g. G4_W, G4_Mo, G4_Au" << std::endl;
 		std::cout << "  Number of events" << std::endl;
+		std::cout << "  Absorber Material" << std::endl;
+		std::cout << "  Absorber thickness [mm]" << std::endl;
 		return 0;
 	}
 
@@ -51,6 +53,8 @@ int main(int argc, char* argv[]) {
 	bool createDataDirectory = (std::string(argv[7]) == "yes");
 	std::string material = std::string(argv[8]);
 	int eventNum = std::stoi(argv[9]);
+	std::string absorber = argv[10];
+	double absorberThickness = std::stod(argv[11]);
 
 	std::cout << "#initial data:" << std::endl;
 	std::cout << "# beam energy: " << beamEnergy << "keV" << std::endl;
@@ -62,17 +66,19 @@ int main(int argc, char* argv[]) {
 	std::cout << "# create Data directory: " << createDataDirectory << std::endl;
 	std::cout << "# material: " << material << std::endl;
 	std::cout << "# Event Number: " << eventNum << std::endl;
+	std::cout << "# absorber: " << eventNum << std::endl;
+	std::cout << "# absorberThickness: " << eventNum << std::endl;
 
-	std::string allEnergyFileName = "allEnergy.dat";
 	std::string detEnergyFileName = "detEnergy.dat";
+	std::string detEnergyElectronFileName = "detEnergyElectron.dat";
 	std::string detInfoFileName = "info.dat";
 
 	if (createDataDirectory) {
 		std::ostringstream is;
 
-		is << "sim_v2_" << beamEnergy << "pm" << beamEnergyFluc << "keV_"
+		is << "sim_v3_" << beamEnergy << "pm" << beamEnergyFluc << "keV_"
 				<< targetThickness << "mm_" << targetAngle << "deg_" << s1
-				<< "_" << detectorOpeningAngle << "deg_" << material << "_" << eventNum << "events";
+				<< "_" << detectorOpeningAngle << "deg_" << material << "_" << eventNum << "events_" << absorber << "_" << absorberThickness << "mm";
 
 		std::string dirName(is.str());
 
@@ -82,8 +88,8 @@ int main(int argc, char* argv[]) {
 
 		fs::create_directory(dirName); // create src folder
 
-		allEnergyFileName = is.str() + "/" + allEnergyFileName;
 		detEnergyFileName = is.str() + "/" + detEnergyFileName;
+		detEnergyElectronFileName = is.str() + "/" + detEnergyElectronFileName;
 		detInfoFileName = is.str() + "/" + detInfoFileName;
 	}
 
@@ -102,10 +108,11 @@ int main(int argc, char* argv[]) {
 	runManager->SetUserInitialization(physicsList);
 
 	runManager->SetUserInitialization(
-			new DetectorConstruction(targetThickness, targetAngle, material));
+			new DetectorConstruction(targetThickness, targetAngle, material,
+					absorber, absorberThickness, detectorPosition));
 	runManager->SetUserInitialization(
 			new ActionInitialization(beamEnergy, beamEnergyFluc,
-					allEnergyFileName.c_str(), detEnergyFileName.c_str(),
+					detEnergyFileName.c_str(), detEnergyElectronFileName.c_str(),
 					detectorPosition, detectorOpeningAngle));
 
 	// get the pointer to the UI manager and set verbosities

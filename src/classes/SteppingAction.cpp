@@ -15,42 +15,27 @@
 
 namespace SoEiXRS {
 
-SteppingAction::SteppingAction(const char* allEnergyOutFile,
-		const char* detectorEnergyOutFile, DetectorPosition detPos, double detectorAngle) :
-		G4UserSteppingAction(), targetVolume(0), allEnergyOf(allEnergyOutFile), detEnergyOf(
-				detectorEnergyOutFile), detPos(detPos), detectorAngle(detectorAngle) {
+SteppingAction::SteppingAction(const char* detectorEnergyOutFile,
+		const char* detectorEnergyElectronOutFile, DetectorPosition detPos,
+		double detectorAngle) :
+		G4UserSteppingAction(), clearance(-1), detEnergyOf(
+				detectorEnergyOutFile), detEnergyElectronOf(
+				detectorEnergyElectronOutFile), detPos(detPos), detectorAngle(
+				detectorAngle) {
 }
 
 SteppingAction::~SteppingAction() {
-	allEnergyOf.close();
 	detEnergyOf.close();
+	detEnergyElectronOf.close();
 }
 
 void SteppingAction::UserSteppingAction(const G4Step* step) {
 
-	if (step->GetTrack()->GetDefinition() != G4Gamma::GammaDefinition()) {
-		return;
-	}
-
-	if (!targetVolume) {
+	if (clearance == -1) {
 		const SoEiXRS::DetectorConstruction* detectorConstruction =
 				static_cast<const SoEiXRS::DetectorConstruction*>(G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-		targetVolume = detectorConstruction->GetTargetVolume();
+		clearance = detectorConstruction->getClearanceDistance();
 	}
-
-	// get volume of the current step
-	G4LogicalVolume* volume =
-			step->GetPreStepPoint()->GetTouchableHandle()->GetVolume()->GetLogicalVolume();
-
-	// check if not inside target volume;
-	if (volume == targetVolume) {
-		return; // as soon as we are outside of the target we will destroy and eventually save the particle based on the direction
-	}
-
-	auto energy = step->GetTrack()->GetKineticEnergy() / keV;
-
-	// save 4pi Energy:
-	allEnergyOf << energy << std::endl;
 
 	G4ThreeVector direction = step->GetTrack()->GetMomentumDirection();
 
@@ -58,26 +43,47 @@ void SteppingAction::UserSteppingAction(const G4Step* step) {
 	auto y = direction.getY();
 	auto z = direction.getZ();
 
+	// We only want to remember stuff behind the absorber (or the detector if no absorber present
+	if (detPos == transmission) {
+		if (step->GetTrack()->GetPosition().z() < clearance) {
+			return;
+		}
+	} else if (detPos == perpendicular) {
+		if (step->GetTrack()->GetPosition().x() < clearance) {
+			return;
+		}
+	}
+
+	auto energy = step->GetTrack()->GetKineticEnergy() / keV;
+
 	// save angle dependent Energy if necessary:
 	if (detPos == transmission) {
-		if (z>0 && detectorAngle >= (2*atan(
-			#if USE_MAX
+		if (z > 0 && detectorAngle >= (2 * atan(
+#if USE_MAX
 				std::max(x, y)
-			#else
+#else
 				sqrt(x*x+y*y)
-			#endif
-				/z)*(180/3.14159265)) ) {
-			detEnergyOf << energy << " " << x << " " << y << " " << z << std::endl;
+#endif
+                /z)*(180/3.14159265)) ) {
+			if (step->GetTrack()->GetDefinition() == G4Gamma::GammaDefinition()) {
+				detEnergyOf << energy << " " << x << " " << y << " " << z << std::endl;
+			} else if (step->GetTrack()->GetDefinition() == G4Electron::ElectronDefinition()) {
+				detEnergyElectronOf << energy << " " << x << " " << y << " " << z << std::endl;
+			}
 		}
 	} else if (detPos == perpendicular) {
 		if (x>0 && detectorAngle >= (2*atan(
-			#if USE_MAX
-				std::max(x, y)
-			#else
-				sqrt(x*x+y*y)
-			#endif
-				/x)*(180/3.14159265)) ) {
-			detEnergyOf << energy << " " << x << " " << y << " " << z << std::endl;
+#if USE_MAX
+		        std::max(x, y)
+#else
+		        sqrt(x*x+y*y)
+#endif
+		        /x)*(180/3.14159265)) ) {
+			if (step->GetTrack()->GetDefinition() == G4Gamma::GammaDefinition()) {
+				detEnergyOf << energy << " " << x << " " << y << " " << z << std::endl;
+			} else if (step->GetTrack()->GetDefinition() == G4Electron::ElectronDefinition()) {
+				detEnergyElectronOf << energy << " " << x << " " << y << " " << z << std::endl;
+			}
 		}
 	} else {
 		//WTF

@@ -16,16 +16,16 @@ namespace SoEiXRS {
 class SteppingAction : public G4UserSteppingAction {
 
 	public:
-		SteppingAction(const char* allEnergyOutFile, const char* detectorEnergyOutFile, DetectorPosition detPos, double detectorAngle);
+		SteppingAction(const char* detectorEnergyOutFile, const char* detectorEnergyElectronOutFile, DetectorPosition detPos, double detectorAngle);
 		virtual ~SteppingAction();
 
 		virtual void UserSteppingAction(const G4Step*);
 
 	private:
-		G4LogicalVolume* targetVolume;
+		double clearance;
 
-		std::ofstream allEnergyOf;
 		std::ofstream detEnergyOf;
+		std::ofstream detEnergyElectronOf;
 
 		DetectorPosition detPos;
 		double detectorAngle;

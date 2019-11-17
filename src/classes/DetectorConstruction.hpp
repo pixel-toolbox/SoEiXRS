@@ -13,22 +13,25 @@
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
+#include "DetectorPosition.hh"
 
 namespace SoEiXRS {
 
 class DetectorConstruction : public G4VUserDetectorConstruction {
 
 	public:
-		DetectorConstruction(double targetThickness, double targetAngle, std::string material);
+		DetectorConstruction(double targetThickness, double targetAngle, std::string material,
+				std::string absorber, double absorberThickness, DetectorPosition detPos);
 
 		G4VPhysicalVolume* Construct();
 
-	    G4LogicalVolume* GetTargetVolume() const { return targetVolume; }
+	    double getClearanceDistance() const { return clearanceDistance; }
 
 		virtual ~DetectorConstruction();
 
 	protected:
-	    G4LogicalVolume*  targetVolume;
+
+	    double clearanceDistance;
 
 		double targetThickness;
 		double targetAngle;

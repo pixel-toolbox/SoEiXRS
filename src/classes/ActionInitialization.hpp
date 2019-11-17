@@ -9,7 +9,7 @@ namespace SoEiXRS {
 class ActionInitialization: public G4VUserActionInitialization {
 public:
 	ActionInitialization(double energy, double energyFluc,
-			const char* allEnergyOutFile, const char* detectorEnergyOutFile,
+			const char* detectorEnergyOutFile, const char* detectorEnergyElectronOutFile,
 			DetectorPosition detPos, double detectorAngle);
 
 	virtual void Build() const;
@@ -20,13 +20,12 @@ private:
 	double energy;
 	double energyFluc;
 
-	const char* allEnergyOutFile;
 	const char* detectorEnergyOutFile;
+	const char* detectorEnergyElectronOutFile;
 
 	DetectorPosition detPos;
 	double detectorAngle;
 
-	int eventNum;
 };
 
 } /* namespace SoEiXRS */
