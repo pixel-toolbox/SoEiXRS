@@ -19,7 +19,7 @@ namespace SoEiXRS {
 
 PrimaryGeneratorAction::PrimaryGeneratorAction(double energy, double energyFluc) :
 		G4VUserPrimaryGeneratorAction(), fParticleGun(0), fEnvelopeBox(0), de(
-				time(0)), nd(energy, energyFluc) {
+				time(0)), energyDist(energy, energyFluc) {
 	G4int n_particle = PARTICLES_IN_GUN;
 	fParticleGun = new G4ParticleGun(n_particle);
 
@@ -34,7 +34,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction() {
 }
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent) {
-	fParticleGun->SetParticleEnergy(nd(de) * keV);
+	fParticleGun->SetParticleEnergy(energyDist(de) * keV);
 
 	fParticleGun->GeneratePrimaryVertex(anEvent);
 }

@@ -29,7 +29,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction {
     G4Box* fEnvelopeBox;
 
     std::default_random_engine de; // the rng for the energy, simple gauss
-    std::normal_distribution<double> nd;
+    std::normal_distribution<double> energyDist;
 
 };
 
