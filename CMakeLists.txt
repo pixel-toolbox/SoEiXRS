@@ -38,10 +38,15 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread ")
 # add C++ compiler flag to enable code coverage testing
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} --coverage")
 
+#add geant4
 find_package(Geant4 REQUIRED vis_all )
 include_directories(${Geant4_INCLUDE_DIRS})
 add_definitions(${Geant4_DEFINITIONS})
-#set(CMAKE_CXX_FLAGS ${Geant4_CXX_FLAGS})
+
+#add root
+list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
+find_package(ROOT REQUIRED COMPONENTS Core RIO MathCore GenVector)
+include(${ROOT_USE_FILE})
 
 set(HEADERS
     ${PROJECT_SOURCE_DIR}/src/include.hh
